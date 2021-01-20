@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import logo from "./logo.svg";
 import "./App.css";
 import { Spring } from "react-spring/renderprops";
+import {Container} from "react-bootstrap";
 import Test from "./test.js";
 import Box from "./box.js";
 import Popup from "./popup.js";
@@ -14,9 +15,7 @@ import {layers} from "./array.js";
 
 function App() {
 
-    useEffect(() => { 
-        setImgs(categories[count])
-    });
+
 
     const categories = [heat, dawn, garden, magnificent, rainyspring, layers];
 
@@ -26,9 +25,17 @@ function App() {
 
     const [count, setCount] = useState(0);
     const [imgs, setImgs] = useState(categories[count]);
+    
 
     const onFirstPage = count == 0;
     const onLastPage = count == categories.length - 1;
+
+    useEffect(() => { 
+        setImgs(categories[count])
+    }, [count]);
+
+    const popup = useRef(null);
+
 
     let text;
     let color;
@@ -40,21 +47,25 @@ function App() {
     }
 
     function weiter() {
-        setCount(prevCount => prevCount + 1);
+        document.querySelector(".imgsWrapper").classList.remove("slide-in-left");
+        document.querySelector(".imgsWrapper").classList.remove("slide-in-right");
+        document.querySelector(".imgsWrapper").classList.add("slide-out-left")
+        setTimeout(() => {
+             setCount(prevCount => prevCount + 1); 
+             document.querySelector(".imgsWrapper").classList.remove("slide-out-left");
+             document.querySelector(".imgsWrapper").classList.add("slide-in-right");
+        }, 500);
+      
         // setImgs(categories[count])
     }
     function zurueck() {
-        setImgs(categories[count])
-
-        console.log(count, imgs);
-        if(count !== 0){
-            console.log("net 0")
-        setCount(prevCount => prevCount - 1);
-        console.log(count)
-        } else {
-            setCount(prevCount => prevCount - 1);
-        }
-        setImgs(categories[count])
+        document.querySelector(".imgsWrapper").classList.remove("slide-in-right");
+        document.querySelector(".imgsWrapper").classList.add("slide-out-right")
+        setTimeout(() => {
+             setCount(prevCount => prevCount - 1); 
+             document.querySelector(".imgsWrapper").classList.remove("slide-out-right");
+             document.querySelector(".imgsWrapper").classList.add("slide-in-left");
+        }, 500);
     }
 
     function changeTitle() {
@@ -84,6 +95,13 @@ function App() {
       })
     }
 
+    function popupMaker(element, index, name, src) {
+        console.log("test", index)
+        console.log(popup.current)
+        document.querySelector("#popupTitle").innerHTML = name;
+        document.querySelector("#newImage").src = src;
+    }
+
     const btnStyle = {
         "width": "300px",
         "height": "200px"
@@ -98,27 +116,29 @@ function App() {
                 <div className="App" style={props}>
                     <div>
                         <header className="App-header">
-                            <img src={logo} className="App-logo" alt="logo" />
-                            <Test content={text} />
-                            <div className="boxWrapper">
-                              <Box title={title[0]} source={img} onClick={() => setTitle(["Neuer Titel", "Title 2", "Title 3"])}></Box>
-                              <Box title={title[1]} source={img}></Box>
-                              <Box title={title[2]} source={img}></Box>
-                            </div>
-                            <Popup onClick={handleClick}></Popup>
+
+                            <Popup title={"Test"}></Popup>
+                   
                         
                             <h1>{count}</h1>
+                            <Container>
                             <div className="imgsWrapper">
                             {imgs.map((e,i) => (
                                 <div>
                                     {/* <h2>{e.kategorie}</h2>
                                     <p>{e.stil}</p> */}
-                                    <img src={e.link} width="250px" key={i} alt={i} onClick={() => disappear(e, i)} />
+                                   { console.log(e)}
+                                    <img src={e.link} width="200px" key={i} alt={i} onClick={() => popupMaker(e, i, e.name, e.url)} />
                                 </div>
                             ))}
                            
                             </div>
-                            <button onClick={zurueck} disabled={onFirstPage}>zurueck</button>
+                            </Container>
+                            {categories.map((e,i) => (
+                                <div className="pagination">{i}</div>
+                            ))}
+
+                            <button ref={popup} onClick={zurueck} disabled={onFirstPage}>zurueck</button>
                             <button onClick={weiter} disabled={onLastPage}>Weiter</button>
                             <p>
                                The color is {color}

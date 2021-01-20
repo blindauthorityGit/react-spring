@@ -4,10 +4,10 @@ import { Spring } from "react-spring/renderprops";
 
 function Popup(props) {
     return (
-        <div className="wrapper">
+        <div className="wrapper popupWrapper">
             <div className="popup" id="popup">
-                <h2>{props.title}</h2>
-                <input id="newImage" type="text"/>
+                <h2 id="popupTitle">{props.title}</h2>
+                <img src={props.url} id="newImage"/>
                 <button onClick={props.onClick}></button>
             </div>
         </div>
